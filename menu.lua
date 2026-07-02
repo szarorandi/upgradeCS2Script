@@ -1,0 +1,293 @@
+-- Tworzenie Interfejsu Graficznego premium (Wersja z wyborem klawisza)
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local FrameCorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local StrokeGradient = Instance.new("UIGradient")
+
+local TitleBar = Instance.new("Frame")
+local TitleCorner = Instance.new("UICorner")
+local TitleGradient = Instance.new("UIGradient")
+local TitleLabel = Instance.new("TextLabel")
+
+local CloseButton = Instance.new("TextButton")
+local CloseCorner = Instance.new("UICorner")
+local MinimizeButton = Instance.new("TextButton")
+local MinimizeCorner = Instance.new("UICorner")
+
+local ContentFrame = Instance.new("Frame")
+local ToggleLabel = Instance.new("TextLabel")
+local KeyBindButton = Instance.new("TextButton") -- Nowy przycisk do zmiany klawisza
+local ToggleButton = Instance.new("TextButton")
+local ButtonCorner = Instance.new("UICorner")
+local ToggleIndicator = Instance.new("Frame")
+local IndicatorCorner = Instance.new("UICorner")
+
+local CreditLabel = Instance.new("TextLabel")
+local CreditShadow = Instance.new("TextLabel")
+local UserInputService = game:GetService("UserInputService")
+
+-- Zmienna przechowująca aktualny klawisz (Domyślnie H)
+local CurrentBind = Enum.KeyCode.H
+local ListeningForBind = false
+
+-- Paleta kolorów premium
+local DarkBg = Color3.fromRGB(15, 15, 15)
+local CardBg = Color3.fromRGB(24, 24, 26)
+local TitleBg = Color3.fromRGB(30, 30, 33)
+local ZlotoZolty = Color3.fromRGB(255, 196, 0)
+local JasneZloto = Color3.fromRGB(255, 220, 100)
+local BasicBialy = Color3.fromRGB(245, 245, 245)
+local ButtonOff = Color3.fromRGB(45, 45, 48)
+
+-- Baza GUI
+ScreenGui.Name = "PremiumEarnGUI"
+ScreenGui.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- Okno główne
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = CardBg
+MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 320, 0, 140)
+MainFrame.Active = true
+MainFrame.Draggable = true 
+MainFrame.ClipsDescendants = true 
+
+FrameCorner.CornerRadius = UDim.new(0, 10)
+FrameCorner.Parent = MainFrame
+
+-- Efekt neonowego, złotego obramowania
+UIStroke.Parent = MainFrame
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+UIStroke.Thickness = 2
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+StrokeGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, ZlotoZolty),
+	ColorSequenceKeypoint.new(0.5, JasneZloto),
+	ColorSequenceKeypoint.new(1, ZlotoZolty)
+})
+StrokeGradient.Parent = UIStroke
+
+-- Elegancki pasek tytułowy
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = MainFrame
+TitleBar.BackgroundColor3 = TitleBg
+TitleBar.Size = UDim2.new(1, 0, 0, 34)
+TitleBar.BorderSizePixel = 0
+
+TitleCorner.CornerRadius = UDim.new(0, 10)
+TitleCorner.Parent = TitleBar
+
+TitleGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 22))
+})
+TitleGradient.Parent = TitleBar
+
+-- Nazwa menu
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Parent = TitleBar
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 12, 0, 0)
+TitleLabel.Size = UDim2.new(1, -100, 1, 0)
+TitleLabel.Font = Enum.Font.FredokaOne
+TitleLabel.Text = "SKIN UPGRADER CS2 MENU"
+TitleLabel.TextColor3 = ZlotoZolty
+TitleLabel.TextSize = 13
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Przycisk Zamknij (X)
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = TitleBar
+CloseButton.BackgroundColor3 = Color3.fromRGB(45, 20, 20)
+CloseButton.Position = UDim2.new(1, -30, 0, 5)
+CloseButton.Size = UDim2.new(0, 24, 0, 24)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+CloseButton.TextSize = 12
+
+CloseCorner.CornerRadius = UDim.new(0, 5)
+CloseCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+-- Przycisk Minimalizacji (-)
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = TitleBar
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+MinimizeButton.Position = UDim2.new(1, -58, 0, 5)
+MinimizeButton.Size = UDim2.new(0, 24, 0, 24)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "—"
+MinimizeButton.TextColor3 = BasicBialy
+MinimizeButton.TextSize = 11
+
+MinimizeCorner.CornerRadius = UDim.new(0, 5)
+MinimizeCorner.Parent = MinimizeButton
+
+-- Główny kontener zawartości
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Position = UDim2.new(0, 0, 0, 34)
+ContentFrame.Size = UDim2.new(1, 0, 1, -34)
+
+-- Obsługa minimalizacji
+local IsMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+	IsMinimized = not IsMinimized
+	if IsMinimized then
+		ContentFrame.Visible = false 
+		MainFrame.Size = UDim2.new(0, 320, 0, 34)
+		MinimizeButton.Text = "+"
+		MinimizeButton.TextColor3 = ZlotoZolty
+	else
+		MainFrame.Size = UDim2.new(0, 320, 0, 140)
+		ContentFrame.Visible = true
+		MinimizeButton.Text = "—"
+		MinimizeButton.TextColor3 = BasicBialy
+	end
+end)
+
+-- Ramka na Logo
+local LogoFrame = Instance.new("Frame")
+LogoFrame.Name = "LogoFrame"
+LogoFrame.Parent = ContentFrame
+LogoFrame.BackgroundColor3 = DarkBg
+LogoFrame.Position = UDim2.new(0, 12, 0, 12)
+LogoFrame.Size = UDim2.new(0, 55, 0, 55)
+
+local LogoCorner = Instance.new("UICorner")
+LogoCorner.CornerRadius = UDim.new(0, 8)
+LogoCorner.Parent = LogoFrame
+
+local LogoStroke = Instance.new("UIStroke")
+LogoStroke.Parent = LogoFrame
+LogoStroke.Color = Color3.fromRGB(45, 45, 50)
+LogoStroke.Thickness = 1
+
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Name = "LogoImage"
+LogoImage.Parent = LogoFrame
+LogoImage.BackgroundTransparency = 1
+LogoImage.Position = UDim2.new(0, 2, 0, 2)
+LogoImage.Size = UDim2.new(1, -4, 1, -4)
+LogoImage.ClipsDescendants = true
+
+local ImageCorner = Instance.new("UICorner")
+ImageCorner.CornerRadius = UDim.new(0, 6)
+ImageCorner.Parent = LogoImage
+
+pcall(function()
+	LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
+end)
+
+-- Nazwa opcji
+ToggleLabel.Name = "ToggleLabel"
+ToggleLabel.Parent = ContentFrame
+ToggleLabel.BackgroundTransparency = 1
+ToggleLabel.Position = UDim2.new(0, 80, 0, 15)
+ToggleLabel.Size = UDim2.new(0, 160, 0, 25)
+ToggleLabel.Font = Enum.Font.GothamBold
+ToggleLabel.Text = "Auto Earn Money"
+ToggleLabel.TextColor3 = BasicBialy
+ToggleLabel.TextSize = 14
+ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Przycisk do bindowania klawiszy (Ustawiony pod napisem)
+KeyBindButton.Name = "KeyBindButton"
+KeyBindButton.Parent = ContentFrame
+KeyBindButton.BackgroundTransparency = 1
+KeyBindButton.Position = UDim2.new(0, 80, 0, 40)
+KeyBindButton.Size = UDim2.new(0, 100, 0, 20)
+KeyBindButton.Font = Enum.Font.GothamBold
+KeyBindButton.Text = "[ Klawisz: H ]"
+KeyBindButton.TextColor3 = ZlotoZolty
+KeyBindButton.TextSize = 12
+KeyBindButton.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Przełącznik suwaka
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = ContentFrame
+ToggleButton.BackgroundColor3 = ButtonOff
+ToggleButton.Position = UDim2.new(0, 250, 0, 27)
+ToggleButton.Size = UDim2.new(0, 54, 0, 24)
+ToggleButton.Text = ""
+
+ButtonCorner.CornerRadius = UDim.new(1, 0)
+ButtonCorner.Parent = ToggleButton
+
+local ButtonStroke = Instance.new("UIStroke")
+ButtonStroke.Parent = ToggleButton
+ButtonStroke.Color = Color3.fromRGB(60, 60, 65)
+ButtonStroke.Thickness = 1
+
+ToggleIndicator.Name = "ToggleIndicator"
+ToggleIndicator.Parent = ToggleButton
+ToggleIndicator.BackgroundColor3 = Color3.fromRGB(180, 180, 185)
+ToggleIndicator.Position = UDim2.new(0, 3, 0, 2)
+ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
+
+IndicatorCorner.CornerRadius = UDim.new(1, 0)
+IndicatorCorner.Parent = ToggleIndicator
+
+-- Podpis
+CreditLabel.Name = "CreditLabel"
+CreditLabel.Parent = ContentFrame
+CreditLabel.BackgroundTransparency = 1
+CreditLabel.Position = UDim2.new(0, 12, 1, -20)
+CreditLabel.Size = UDim2.new(0, 200, 0, 15)
+CreditLabel.Font = Enum.Font.FredokaOne
+CreditLabel.Text = "made by: szarorandi/AI"
+CreditLabel.TextColor3 = ZlotoZolty
+CreditLabel.TextSize = 11
+CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
+CreditLabel.ZIndex = 2
+
+CreditShadow.Name = "CreditShadow"
+CreditShadow.Parent = ContentFrame
+CreditShadow.BackgroundTransparency = 1
+CreditShadow.Position = UDim2.new(0, 13, 1, -19)
+CreditShadow.Size = UDim2.new(0, 200, 0, 15)
+CreditShadow.Font = Enum.Font.FredokaOne
+CreditShadow.Text = "made by: szarorandi/AI"
+CreditShadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+CreditShadow.TextSize = 11
+CreditShadow.TextXAlignment = Enum.TextXAlignment.Left
+CreditShadow.ZIndex = 1
+
+--- LOGIKA AUTOMATYCZNEGO KLIKANIA W LUDZIKI ---
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
+
+local _G = _G or {}
+_G.AutoEarnActive = false
+
+local function smartDrillClick()
+	while _G.AutoEarnActive do
+		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+		if PlayerGui then
+			for _, obj in pairs(PlayerGui:GetDescendants()) do
+				if _G.AutoEarnActive == false then break end
+				
+				if obj:IsA("Frame") and (obj.Name:lower():find("drill") or obj.Name:lower():find("earn") or obj.Name:lower():find("money")) then
+					for _, child in pairs(obj:GetDescendants()) do
+						if child:IsA("ImageLabel") or child:IsA("ImageButton") or child:IsA("TextButton") then
+							if child.Visible and child.AbsoluteSize.X > 10 then
+								pcall(function()
+									if child:IsA("ImageButton") or child:IsA("TextButton") then
+										child:Activate()
+									end
+									
+									local x = child.AbsolutePosition.X + (child.AbsoluteSize.X / 2)
+									local y = child.AbsolutePosition.Y + (child.AbsoluteSize.Y / 2)
+									VirtualUser:Button1Down(Vector2.new(x, y))
+									VirtualUser:Button1Up(Vector2.new(x, y))
+end)endendendendendendtask.wait(0.05)endend-- Funkcja przełączająca stan botalocal function toggleBotState()_G.AutoEarnActive = not _G.AutoEarnActiveif _G.AutoEarnActive thenToggleIndicator.Position = UDim2.new(0, 31, 0, 2)ToggleIndicator.BackgroundColor3 = BasicBialyToggleButton.BackgroundColor3 = ZlotoZoltyButtonStroke.Color = JasneZlototask.spawn(smartDrillClick)elseToggleIndicator.Position = UDim2.new(0, 3, 0, 2)ToggleIndicator.BackgroundColor3 = Color3.fromRGB(180, 180, 185)ToggleButton.BackgroundColor3 = ButtonOffButtonStroke.Color = Color3.fromRGB(60, 60, 65)endend-- Reakcja na kliknięcie w przycisk zmiany klawiszaKeyBindButton.MouseButton1Click:Connect(function()ListeningForBind = trueKeyBindButton.Text = "[ Kliknij klawisz... ]"KeyBindButton.TextColor3 = Color3.fromRGB(255, 100, 100) -- Zmienia kolor na czerwony podczas czekaniaend)--- OBSŁUGA KLAWIATURY (STEROWANIE I BINDY) ---UserInputService.InputBegan:Connect(function(input, gameProcessed)-- Zmiana binda (Uruchamia się, jeśli kliknąłeś w guzik)if ListeningForBind and input.UserInputType == Enum.UserInputType.Keyboard thenCurrentBind = input.KeyCodeListeningForBind = falseKeyBindButton.Text = "[ Klawisz: " .. input.KeyCode.Name .. " ]"KeyBindButton.TextColor3 = ZlotoZoltyreturnend-- Standardowe skróty klawiszoweif not gameProcessed then-- LEWY CTRL: Pokazuje / Ukrywa całe menuif input.KeyCode == Enum.KeyCode.LeftControl thenMainFrame.Visible = not MainFrame.Visible-- DYNAMICZNY ZMIENNY KLAWISZ (H, U lub każdy inny wybrany przez Ciebie)elseif input.KeyCode == CurrentBind thentoggleBotState()endendend)
