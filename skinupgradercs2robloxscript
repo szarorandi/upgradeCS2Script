@@ -12,14 +12,14 @@ local CreditLabel = Instance.new("TextLabel")
 local UIStroke = Instance.new("UIStroke")
 local UserInputService = game:GetService("UserInputService")
 
--- LEWE LOGO (Gdy obrazek przestanie być biały, wpisz jego ID poniżej)
+-- TWOJE LOGO (Zintegrowane z Asset ID z Twojego linku)
 local LogoImage = Instance.new("ImageLabel")
 LogoImage.Name = "LogoImage"
 LogoImage.Parent = MainFrame
 LogoImage.BackgroundTransparency = 1
-LogoImage.Position = UDim2.new(0, 15, 0, 45) -- Pozycja dopasowana do okna
-LogoImage.Size = UDim2.new(0, 75, 0, 75) -- Rozmiar dopasowany do kwadratu
-LogoImage.Image = "rbxassetid://TUTAJ_WPISZ_SWOJE_ID" -- Zastąp to swoimi cyframi z adresu URL
+LogoImage.Position = UDim2.new(0, 15, 0, 45) 
+LogoImage.Size = UDim2.new(0, 75, 0, 75) 
+LogoImage.Image = "http://roblox.com" -- Bezpośredni link do Twojego Decala
 
 -- Kolory
 local ZlotoZolty = Color3.fromRGB(255, 196, 0)
@@ -36,7 +36,7 @@ MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 340, 0, 180) -- Lekko poszerzone dla lepszego wyglądu
+MainFrame.Size = UDim2.new(0, 340, 0, 180) 
 MainFrame.Active = true
 MainFrame.Draggable = true 
 MainFrame.ClipsDescendants = true 
@@ -104,7 +104,7 @@ ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 30)
 ContentFrame.Size = UDim2.new(1, 0, 1, -30)
 
--- Napis opcji (Przesunięty w prawo, by zrobić miejsce na logo)
+-- Napis opcji 
 ToggleLabel.Name = "ToggleLabel"
 ToggleLabel.Parent = ContentFrame
 ToggleLabel.BackgroundTransparency = 1
@@ -116,7 +116,7 @@ ToggleLabel.TextColor3 = BasicBialy
 ToggleLabel.TextSize = 15
 ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Suwak (Przesunięty w prawo)
+-- Suwak 
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ContentFrame
 ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
