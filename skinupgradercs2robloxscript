@@ -12,15 +12,6 @@ local CreditLabel = Instance.new("TextLabel")
 local UIStroke = Instance.new("UIStroke")
 local UserInputService = game:GetService("UserInputService")
 
--- TWOJE LOGO (Zintegrowane z Asset ID z Twojego linku)
-local LogoImage = Instance.new("ImageLabel")
-LogoImage.Name = "LogoImage"
-LogoImage.Parent = MainFrame
-LogoImage.BackgroundTransparency = 1
-LogoImage.Position = UDim2.new(0, 15, 0, 45) 
-LogoImage.Size = UDim2.new(0, 75, 0, 75) 
-LogoImage.Image = "http://roblox.com" -- Bezpośredni link do Twojego Decala
-
 -- Kolory
 local ZlotoZolty = Color3.fromRGB(255, 196, 0)
 local BasicBialy = Color3.fromRGB(240, 240, 240)
@@ -85,30 +76,46 @@ MinimizeButton.Text = "-"
 MinimizeButton.TextColor3 = BasicBialy
 MinimizeButton.TextSize = 16
 
-local IsMinimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-	IsMinimized = not IsMinimized
-	if IsMinimized then
-		MainFrame:TweenSize(UDim2.new(0, 340, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
-		MinimizeButton.Text = "+"
-	else
-		MainFrame:TweenSize(UDim2.new(0, 340, 0, 180), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
-		MinimizeButton.Text = "-"
-	end
-end)
-
--- Zawartość okna
+-- Główny kontener zawartości
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 30)
 ContentFrame.Size = UDim2.new(1, 0, 1, -30)
 
+-- Obsługa minimalizacji
+local IsMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+	IsMinimized = not IsMinimized
+	if IsMinimized then
+		ContentFrame.Visible = false 
+		MainFrame:TweenSize(UDim2.new(0, 340, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		MinimizeButton.Text = "+"
+	else
+		MainFrame:TweenSize(UDim2.new(0, 340, 0, 180), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		task.wait(0.1)
+		ContentFrame.Visible = true
+		MinimizeButton.Text = "-"
+	end
+end)
+
+-- ŁADOWANIE LOGO
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Name = "LogoImage"
+LogoImage.Parent = ContentFrame
+LogoImage.BackgroundTransparency = 1
+LogoImage.Position = UDim2.new(0, 15, 0, 15) 
+LogoImage.Size = UDim2.new(0, 75, 0, 75) 
+pcall(function()
+	LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
+end)
+
 -- Napis opcji 
+local ToggleLabel = Instance.new("TextLabel")
 ToggleLabel.Name = "ToggleLabel"
 ToggleLabel.Parent = ContentFrame
 ToggleLabel.BackgroundTransparency = 1
-ToggleLabel.Position = UDim2.new(0, 105, 0, 35)
+ToggleLabel.Position = UDim2.new(0, 105, 0, 20)
 ToggleLabel.Size = UDim2.new(0, 160, 0, 30)
 ToggleLabel.Font = Enum.Font.GothamMedium
 ToggleLabel.Text = "Earn Money Automatic"
@@ -121,7 +128,7 @@ ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ContentFrame
 ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 ToggleButton.BorderSizePixel = 0
-ToggleButton.Position = UDim2.new(0, 265, 0, 37)
+ToggleButton.Position = UDim2.new(0, 265, 0, 22)
 ToggleButton.Size = UDim2.new(0, 55, 0, 24)
 ToggleButton.Text = ""
 
@@ -131,7 +138,7 @@ ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
 ToggleIndicator.Position = UDim2.new(0, 3, 0, 2)
 ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
 
--- Podpis w lewym dolnym rogu (Złoto-żółty)
+-- Podpis w lewym dolnym rogu
 CreditLabel.Name = "CreditLabel"
 CreditLabel.Parent = ContentFrame
 CreditLabel.BackgroundTransparency = 1
@@ -143,43 +150,38 @@ CreditLabel.TextColor3 = ZlotoZolty
 CreditLabel.TextSize = 12
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
 
---- SKRÓT KLAWISZOWY (LEWY CTRL) DO UKRYWANIA MENU ---
+--- SKRÓT KLAWISZOWY (LEWY CTRL) ---
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if not gameProcessed and input.KeyCode == Enum.KeyCode.LeftControl then
 		MainFrame.Visible = not MainFrame.Visible
 	end
 end)
 
---- BEZPIECZNE AUTOMATYCZNE KLIKANIE ---
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
+--- NAJSILNIEJSZY SYSTEM OBIJANIA REKURENCYJNEGO (REMOTE EVENTS) ---
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local _G = _G or {}
 _G.AutoEarnActive = false
 
-local function forceClick()
+local function remoteEventBypassClick()
 	while _G.AutoEarnActive do
-		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
-		if PlayerGui then
-			for _, guiObject in pairs(PlayerGui:GetDescendants()) do
+		pcall(function()
+			-- Skanowanie całej pamięci gry w poszukiwaniu sieciowych funkcji uderzeń/zarabiania
+			for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
 				if _G.AutoEarnActive == false then break end
 				
-				if guiObject:IsA("ImageButton") or guiObject:IsA("TextButton") then
-					if guiObject.Visible and (guiObject.Parent.Name:lower():find("bot") or guiObject.Name:lower():find("bot") or guiObject.Parent.Name:lower():find("drill")) then
-						pcall(function()
-							guiObject:Activate()
-							for _, connection in pairs(getconnections(guiObject.MouseButton1Click)) do
-								connection:Fire()
-							end
-							for _, connection in pairs(getconnections(guiObject.MouseButton1Down)) do
-								connection:Fire()
-							end
-						end)
+				if remote:IsA("RemoteEvent") then
+					local name = remote.Name:lower()
+					-- Wykrywanie eventu powiązanego z klikaniem, botami, ekonomią lub minigrami
+					if name:find("click") or name:find("hit") or name:find("earn") or name:find("money") or name:find("drill") or name:find("bot") or name:find("tap") then
+						-- Wywołanie zdarzenia sieciowego bezpośrednio do serwera gry
+						remote:FireServer()
+						remote:FireServer(1)
+						remote:FireServer(true)
 					end
 				end
 			end
-		end
-		task.wait(0.05) 
+		end)
+		task.wait(0.02) -- Ekstremalne tempo (50 wysłanych pakietów na sekundę)
 	end
 end
 
@@ -190,7 +192,7 @@ ToggleButton.MouseButton1Click:Connect(function()
 	if _G.AutoEarnActive then
 		ToggleIndicator:TweenPosition(UDim2.new(0, 32, 0, 2), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
 		ToggleIndicator.BackgroundColor3 = ZlotoZolty
-		task.spawn(forceClick)
+		task.spawn(remoteEventBypassClick)
 	else
 		ToggleIndicator:TweenPosition(UDim2.new(0, 3, 0, 2), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
 		ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
