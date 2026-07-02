@@ -34,7 +34,6 @@ local TitleBg = Color3.fromRGB(30, 30, 33)
 local ZlotoZolty = Color3.fromRGB(255, 196, 0)
 local JasneZloto = Color3.fromRGB(255, 220, 100)
 local BasicBialy = Color3.fromRGB(245, 245, 245)
-local TextSzary = Color3.fromRGB(160, 160, 165)
 local ButtonOff = Color3.fromRGB(45, 45, 48)
 
 -- Baza GUI
@@ -42,12 +41,12 @@ ScreenGui.Name = "PremiumEarnGUI"
 ScreenGui.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
--- Okno główne (Zmniejszone gabaryty, idealnie kompaktowe)
+-- Okno główne
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = CardBg
 MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 320, 0, 140) -- Zmniejszona wysokość i szerokość
+MainFrame.Size = UDim2.new(0, 320, 0, 140)
 MainFrame.Active = true
 MainFrame.Draggable = true 
 MainFrame.ClipsDescendants = true 
@@ -84,7 +83,7 @@ TitleGradient.Color = ColorSequence.new({
 })
 TitleGradient.Parent = TitleBar
 
--- Zmieniona nazwa menu na Twoją prośbę
+-- Nazwa menu
 TitleLabel.Name = "TitleLabel"
 TitleLabel.Parent = TitleBar
 TitleLabel.BackgroundTransparency = 1
@@ -153,7 +152,7 @@ MinimizeButton.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Ramka na Logo (Dopasowana i wyśrodkowana)
+-- Ramka na Logo
 local LogoFrame = Instance.new("Frame")
 LogoFrame.Name = "LogoFrame"
 LogoFrame.Parent = ContentFrame
@@ -186,7 +185,7 @@ pcall(function()
 	LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
 end)
 
--- Zmieniony, krótki napis opcji – mieści się idealnie w całości
+-- Napis opcji Auto Earn Money
 ToggleLabel.Name = "ToggleLabel"
 ToggleLabel.Parent = ContentFrame
 ToggleLabel.BackgroundTransparency = 1
@@ -198,7 +197,7 @@ ToggleLabel.TextColor3 = BasicBialy
 ToggleLabel.TextSize = 14
 ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Przełącznik suwaka premium (Dopasowany do mniejszego okna)
+-- Przełącznik suwaka
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ContentFrame
 ToggleButton.BackgroundColor3 = ButtonOff
@@ -223,7 +222,7 @@ ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
 IndicatorCorner.CornerRadius = UDim.new(1, 0)
 IndicatorCorner.Parent = ToggleIndicator
 
--- Podpis w lewym dolnym rogu (Przesunięty niżej w małym oknie)
+-- Podpis w lewym dolnym rogu
 CreditLabel.Name = "CreditLabel"
 CreditLabel.Parent = ContentFrame
 CreditLabel.BackgroundTransparency = 1
@@ -255,19 +254,43 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
--- Animacje suwaka (Smooth Transitions)
+--- FUNKCJA ODPOWIEDZIALNA ZA AUTOMATYCZNE KLIKANIE W LUDZIKI ---
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
+
 local _G = _G or {}
 _G.AutoEarnActive = false
 
-ToggleButton.MouseButton1Click:Connect(function()
-	_G.AutoEarnActive = not _G.AutoEarnActive
-	
-	if _G.AutoEarnActive then
-		TweenService:Create(ToggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 31, 0, 2)}):Play()
-		TweenService:Create(ToggleIndicator, TweenInfo.new(0.2), {BackgroundColor3 = BasicBialy}):Play()
-		TweenService:Create(ToggleButton, TweenInfo.new(0.2), {BackgroundColor3 = ZlotoZolty}):Play()
-		TweenService:Create(ButtonStroke, TweenInfo.new(0.2), {Color = JasneZloto}):Play()
-	else
-		TweenService:Create(ToggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 3, 0, 2)}):Play()
-		TweenService:Create(ToggleIndicator, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(180, 180, 185)}):Play()
-		TweenService:Create(ToggleButton, TweenInfo.new(0.2), {BackgroundColor3 = ButtonOff}):Play()
+local function smartDrillClick()
+	while _G.AutoEarnActive do
+		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+		if PlayerGui then
+			for _, obj in pairs(PlayerGui:GetDescendants()) do
+				if _G.AutoEarnActive == false then break end
+				
+				if obj:IsA("Frame") and (obj.Name:lower():find("drill") or obj.Name:lower():find("earn") or obj.Name:lower():find("money")) then
+					for _, child in pairs(obj:GetDescendants()) do
+						if child:IsA("ImageLabel") or child:IsA("ImageButton") or child:IsA("TextButton") then
+							if child.Visible and child.AbsoluteSize.X > 10 then
+								pcall(function()
+									if child:IsA("ImageButton") or child:IsA("TextButton") then
+										child:Activate()
+									end
+									
+									local x = child.AbsolutePosition.X + (child.AbsoluteSize.X / 2)
+									local y = child.AbsolutePosition.Y + (child.AbsoluteSize.Y / 2)
+									VirtualUser:Button1Down(Vector2.new(x, y))
+									VirtualUser:Button1Up(Vector2.new(x, y))
+								end)
+							end
+						end
+					end
+				end
+			end
+		end
+		task.wait(0.05) 
+	end
+end
+
+-- Obsługa suwaka i uruchamianie pętli klikania
