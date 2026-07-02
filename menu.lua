@@ -1,4 +1,4 @@
--- Tworzenie prostego, stabilnego interfejsu (Wersja Ultra-Light)
+-- Tworzenie prostego, stabilnego interfejsu (Wersja Ultra-Light z pełnym ukrywaniem)
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local FrameCorner = Instance.new("UICorner")
@@ -95,7 +95,7 @@ CloseButton.MouseButton1Click:Connect(function()
 	ScreenGui:Destroy()
 end)
 
--- Przycisk Minimalizacji (-)
+-- Przycisk Minimalizacji (-) -> TERAZ CAŁKOWICIE UKRYWA OKNO
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Parent = TitleBar
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
@@ -109,27 +109,16 @@ MinimizeButton.TextSize = 11
 MinimizeCorner.CornerRadius = UDim.new(0, 5)
 MinimizeCorner.Parent = MinimizeButton
 
+MinimizeButton.MouseButton1Click:Connect(function()
+	MainFrame.Visible = false -- Całkowite ukrycie okna po kliknięciu minusa
+end)
+
 -- Zawartość okna
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 34)
 ContentFrame.Size = UDim2.new(1, 0, 1, -34)
-
--- Obsługa minimalizacji
-local IsMinimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-	IsMinimized = not IsMinimized
-	if IsMinimized then
-		ContentFrame.Visible = false 
-		MainFrame.Size = UDim2.new(0, 320, 0, 34)
-		MinimizeButton.Text = "+"
-	else
-		MainFrame.Size = UDim2.new(0, 320, 0, 140)
-		ContentFrame.Visible = true
-		MinimizeButton.Text = "—"
-	end
-end)
 
 -- Ramka na Logo
 local LogoFrame = Instance.new("Frame")
@@ -209,16 +198,15 @@ CreditLabel.TextColor3 = ZlotoZolty
 CreditLabel.TextSize = 11
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
 
---- 🎯 PROSTA I NIEZAWODNA PĘTLA UDERZANIA BOTÓW ---
+--- 🎯 PĘTLA AUTOCLICKERA ---
 local function simpleClickLoop()
 	while _G.AutoEarnActive do
 		local PlayerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
 		if PlayerGui then
-			-- Skrypt klika bezpośrednio we wszystkie elementy typu Button w grze, omijając blokady myszy
 			for _, v in pairs(PlayerGui:GetDescendants()) do
 				if not _G.AutoEarnActive then break end
-				if v:IsA("TextButton") or v:IsA("ImageButton") then
-					if v.Visible and (v.Name:lower():find("bot") or v.Name:lower():find("drill") or v.Name:lower():find("earn")) then
+				if (v:IsA("TextButton") or v:IsA("ImageButton")) and not v:IsDescendantOf(MainFrame) then
+					if v.Visible and v.AbsoluteSize.X > 5 and v.AbsolutePosition.Y > 50 then
 						pcall(function()
 							v:Activate()
 						end)
@@ -226,7 +214,7 @@ local function simpleClickLoop()
 				end
 			end
 		end
-		task.wait(0.05)
+		task.wait(0.01) 
 	end
 end
 
@@ -243,7 +231,7 @@ local function toggleBotState()
 	end
 end
 
--- Reakcja na kliknięcie w przycisk zmiany klawisza
+-- Reakcja na przycisk binda
 KeyBindButton.MouseButton1Click:Connect(function()
 	ListeningForBind = true
 	KeyBindButton.Text = "[ Kliknij klawisz... ]"
@@ -253,7 +241,7 @@ end)
 -- Reakcja na suwak
 ToggleButton.MouseButton1Click:Connect(toggleBotState)
 
---- OBSŁUGA KLAWIATURY ---
+--- OBSŁUGA KLAWIATURY (POKAZYWANIE / UKRYWANIE) ---
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if ListeningForBind and input.UserInputType == Enum.UserInputType.Keyboard then
 		CurrentBind = input.KeyCode
@@ -264,6 +252,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 
 	if not gameProcessed then
+		-- LEWY CTRL: Całkowicie odkrywa lub ukrywa okienko
 		if input.KeyCode == Enum.KeyCode.LeftControl then
 			MainFrame.Visible = not MainFrame.Visible
 		elseif input.KeyCode == CurrentBind then
