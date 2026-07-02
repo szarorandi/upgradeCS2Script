@@ -1,4 +1,4 @@
--- Tworzenie stabilnego interfejsu (Wersja z pełnym ukrywaniem i wsparciem dla scen 3D Viewport)
+-- Skrypt stabilny: Fizyczna mysz z natychmiastowym wyłączaniem pod klawiszem
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local FrameCorner = Instance.new("UICorner")
@@ -23,6 +23,7 @@ local IndicatorCorner = Instance.new("UICorner")
 
 local CreditLabel = Instance.new("TextLabel")
 local UserInputService = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
 
 -- Zmienne binda i stanu bota
 local CurrentBind = Enum.KeyCode.H
@@ -92,6 +93,7 @@ CloseCorner.CornerRadius = UDim.new(0, 5)
 CloseCorner.Parent = CloseButton
 
 CloseButton.MouseButton1Click:Connect(function()
+	_G.AutoEarnActive = false
 	ScreenGui:Destroy()
 end)
 
@@ -198,48 +200,39 @@ CreditLabel.TextColor3 = ZlotoZolty
 CreditLabel.TextSize = 11
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
 
---- 🎯 SPRECYZOWANY SYSTEM KLIKANIA W TRÓJWYMIAROWE MODELE (VIEWPORT BYPASS) ---
-local VirtualUser = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local function viewportClickLoop()
+--- 🎯 PĘTLA KLIKANIA (OBSŁUGA MYSZY SYSTEMOWEJ I WIRTUALNEJ) ---
+local function startHybridClicker()
 	while _G.AutoEarnActive do
-		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+		local PlayerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
 		if PlayerGui then
-			-- Przeszukujemy całe UI gry, aby namierzyć okno 3D minigry (ViewportFrame)
+			-- Lokalizowanie czarnego okna gry na monitorze
+			local targetFrame = nil
 			for _, v in pairs(PlayerGui:GetDescendants()) do
-				if not _G.AutoEarnActive then break end
-				
-				-- Skanujemy tylko okno symulacji 3D bicia botów
-				if v:IsA("ViewportFrame") and v.Visible then
-					-- Szukamy modeli 3D botów stojących wewnątrz tej wirtualnej kamery
-					for _, model in pairs(v:GetDescendants()) do
-						if model:IsA("Humanoid") and model.Parent and model.Parent:IsA("Model") then
-							local rootPart = model.Parent:FindFirstChild("HumanoidRootPart") or model.Parent:FindFirstChild("Head")
-							local currentCamera = v.CurrentCamera
-							
-							if rootPart and currentCamera then
-								pcall(function()
-									-- MATEMATYCZNA KONWERSJA: Zamieniamy pozycję bota 3D na piksele na Twoim ekranie 2D
-									local vector, onScreen = currentCamera:WorldToViewportPoint(rootPart.Position)
-									if onScreen then
-										-- Wyliczamy idealne przesunięcie pikseli względem okna minigry
-										local finalX = v.AbsolutePosition.X + vector.X
-										local finalY = v.AbsolutePosition.Y + vector.Y + 46 -- Przesunięcie na środek brzucha bota
-										
-										-- Sprzętowe uderzenie w wyliczone piksele 3D (Omija całkowicie zabezpieczenia)
-										VirtualUser:Button1Down(Vector2.new(finalX, finalY))
-										VirtualUser:Button1Up(Vector2.new(finalX, finalY))
-									end
-								end)
-							end
-						end
-					end
+				if v:IsA("Frame") and (v.Name:lower():find("drill") or v.Name:lower():find("system")) and v.AbsoluteSize.X > 200 then
+					targetFrame = v
+					break
 				end
 			end
+			
+			if targetFrame and targetFrame.Visible then
+				pcall(function()
+					-- Wyznaczanie pozycji środka minigry
+					local cX = targetFrame.AbsolutePosition.X + (targetFrame.AbsoluteSize.X / 2)
+					local cY = targetFrame.AbsolutePosition.Y + (targetFrame.AbsoluteSize.Y / 2) + 40
+					
+					-- Sposób 1: Prawdziwy kursor sprzętowy (jeśli executor pozwala)
+					if mousemoveabs and mouse1click then
+						mousemoveabs(cX, cY)
+						mouse1click()
+					else
+						-- Sposób 2: Wirtualna mysz (jeśli executor ma blokadę sprzętową)
+						VirtualUser:Button1Down(Vector2.new(cX, cY))
+						VirtualUser:Button1Up(Vector2.new(cX, cY))
+					end
+				end)
+			end
 		end
-		task.wait(0.02) -- Ekstremalne tempo uderzeń bota
+		task.wait(0.02) -- Optymalna prędkość klikania [1]
 	end
 end
 
@@ -249,7 +242,7 @@ local function toggleBotState()
 	if _G.AutoEarnActive then
 		ToggleIndicator.Position = UDim2.new(0, 31, 0, 2)
 		ToggleButton.BackgroundColor3 = ZlotoZolty
-		task.spawn(viewportClickLoop)
+		task.spawn(startHybridClicker)
 	else
 		ToggleIndicator.Position = UDim2.new(0, 3, 0, 2)
 		ToggleButton.BackgroundColor3 = ButtonOff
@@ -266,7 +259,7 @@ end)
 -- Reakcja na suwak
 ToggleButton.MouseButton1Click:Connect(toggleBotState)
 
---- OBSŁUGA KLAWIATURY (POKAZYWANIE / UKRYWANIE) ---
+--- OBSŁUGA KLAWIATURY (WŁĄCZANIE I PEŁNE WYŁĄCZANIE) ---
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if ListeningForBind and input.UserInputType == Enum.UserInputType.Keyboard then
 		CurrentBind = input.KeyCode
@@ -277,9 +270,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 
 	if not gameProcessed then
-		-- LEWY CTRL: Całkowicie odkrywa lub ukrywa okienko
+		-- LEWY CTRL: Odkrywa lub ukrywa okienko całkowicie
 		if input.KeyCode == Enum.KeyCode.LeftControl then
 			MainFrame.Visible = not MainFrame.Visible
+		-- TWÓJ KLAWISZ (Np. U): Włącza bota, a ponowne kliknięcie natychmiast go gasid i oddaje myszkę
 		elseif input.KeyCode == CurrentBind then
 			toggleBotState()
 		end
