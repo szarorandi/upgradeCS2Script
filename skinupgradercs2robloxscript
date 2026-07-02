@@ -1,64 +1,113 @@
--- Tworzenie Interfejsu Graficznego (GUI)
+-- Tworzenie Interfejsu Graficznego premium
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
+local FrameCorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local StrokeGradient = Instance.new("UIGradient")
+
+local TitleBar = Instance.new("Frame")
+local TitleCorner = Instance.new("UICorner")
+local TitleGradient = Instance.new("UIGradient")
 local TitleLabel = Instance.new("TextLabel")
+
 local CloseButton = Instance.new("TextButton")
+local CloseCorner = Instance.new("UICorner")
 local MinimizeButton = Instance.new("TextButton")
+local MinimizeCorner = Instance.new("UICorner")
+
 local ContentFrame = Instance.new("Frame")
 local ToggleLabel = Instance.new("TextLabel")
 local ToggleButton = Instance.new("TextButton")
+local ButtonCorner = Instance.new("UICorner")
 local ToggleIndicator = Instance.new("Frame")
+local IndicatorCorner = Instance.new("UICorner")
+
 local CreditLabel = Instance.new("TextLabel")
-local UIStroke = Instance.new("UIStroke")
+local CreditShadow = Instance.new("TextLabel")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
--- Kolory
+-- Paleta kolorów premium
+local DarkBg = Color3.fromRGB(15, 15, 15)
+local CardBg = Color3.fromRGB(24, 24, 26)
+local TitleBg = Color3.fromRGB(30, 30, 33)
 local ZlotoZolty = Color3.fromRGB(255, 196, 0)
-local BasicBialy = Color3.fromRGB(240, 240, 240)
+local JasneZloto = Color3.fromRGB(255, 220, 100)
+local BasicBialy = Color3.fromRGB(245, 245, 245)
+local TextSzary = Color3.fromRGB(160, 160, 165)
+local ButtonOff = Color3.fromRGB(45, 45, 48)
 
--- Konfiguracja bazy GUI
-ScreenGui.Name = "AutoEarnMoneyGUI"
+-- Baza GUI
+ScreenGui.Name = "PremiumEarnGUI"
 ScreenGui.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
 -- Okno główne
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BorderSizePixel = 0
+MainFrame.BackgroundColor3 = CardBg
 MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 340, 0, 180) 
+MainFrame.Size = UDim2.new(0, 420, 0, 180) 
 MainFrame.Active = true
 MainFrame.Draggable = true 
 MainFrame.ClipsDescendants = true 
 
-UIStroke.Parent = MainFrame
-UIStroke.Color = ZlotoZolty
-UIStroke.Thickness = 2
+FrameCorner.CornerRadius = UDim.new(0, 12)
+FrameCorner.Parent = MainFrame
 
--- Górny pasek tytułowy
+-- Efekt neonowego, złotego obramowania
+UIStroke.Parent = MainFrame
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+UIStroke.Thickness = 2
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+StrokeGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, ZlotoZolty),
+	ColorSequenceKeypoint.new(0.5, JasneZloto),
+	ColorSequenceKeypoint.new(1, ZlotoZolty)
+})
+StrokeGradient.Parent = UIStroke
+
+-- Elegancki pasek tytułowy
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = MainFrame
+TitleBar.BackgroundColor3 = TitleBg
+TitleBar.Size = UDim2.new(1, 0, 0, 38)
+TitleBar.BorderSizePixel = 0
+
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = TitleBar
+
+TitleGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 22))
+})
+TitleGradient.Parent = TitleBar
+
 TitleLabel.Name = "TitleLabel"
-TitleLabel.Parent = MainFrame
-TitleLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-TitleLabel.BorderSizePixel = 0
-TitleLabel.Size = UDim2.new(1, 0, 0, 30)
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "  AUTO EARN MONEY // SYSTEM"
+TitleLabel.Parent = TitleBar
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 16, 0, 0)
+TitleLabel.Size = UDim2.new(1, -120, 1, 0)
+TitleLabel.Font = Enum.Font.FredokaOne
+TitleLabel.Text = "AUTO EARN MONEY"
 TitleLabel.TextColor3 = ZlotoZolty
-TitleLabel.TextSize = 14
+TitleLabel.TextSize = 15
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 -- Przycisk Zamknij (X)
 CloseButton.Name = "CloseButton"
-CloseButton.Parent = MainFrame
-CloseButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-CloseButton.BorderSizePixel = 0
-CloseButton.Position = UDim2.new(1, -30, 0, 0)
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Parent = TitleBar
+CloseButton.BackgroundColor3 = Color3.fromRGB(45, 20, 20)
+CloseButton.Position = UDim2.new(1, -34, 0, 6)
+CloseButton.Size = UDim2.new(0, 26, 0, 26)
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.Text = "X"
-CloseButton.TextColor3 = BasicBialy
-CloseButton.TextSize = 14
+CloseButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+CloseButton.TextSize = 13
+
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseButton
 
 CloseButton.MouseButton1Click:Connect(function()
 	ScreenGui:Destroy()
@@ -66,89 +115,137 @@ end)
 
 -- Przycisk Minimalizacji (-)
 MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Parent = MainFrame
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-MinimizeButton.BorderSizePixel = 0
-MinimizeButton.Position = UDim2.new(1, -60, 0, 0)
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Parent = TitleBar
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+MinimizeButton.Position = UDim2.new(1, -66, 0, 6)
+MinimizeButton.Size = UDim2.new(0, 26, 0, 26)
 MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.Text = "-"
+MinimizeButton.Text = "—"
 MinimizeButton.TextColor3 = BasicBialy
-MinimizeButton.TextSize = 16
+MinimizeButton.TextSize = 12
+
+MinimizeCorner.CornerRadius = UDim.new(0, 6)
+MinimizeCorner.Parent = MinimizeButton
 
 -- Główny kontener zawartości
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
 ContentFrame.BackgroundTransparency = 1
-ContentFrame.Position = UDim2.new(0, 0, 0, 30)
-ContentFrame.Size = UDim2.new(1, 0, 1, -30)
+ContentFrame.Position = UDim2.new(0, 0, 0, 38)
+ContentFrame.Size = UDim2.new(1, 0, 1, -38)
 
--- Obsługa minimalizacji
+-- Obsługa nowoczesnej minimalizacji
 local IsMinimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
 	IsMinimized = not IsMinimized
 	if IsMinimized then
 		ContentFrame.Visible = false 
-		MainFrame:TweenSize(UDim2.new(0, 340, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		MainFrame:TweenSize(UDim2.new(0, 420, 0, 38), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
 		MinimizeButton.Text = "+"
+		MinimizeButton.TextColor3 = ZlotoZolty
 	else
-		MainFrame:TweenSize(UDim2.new(0, 340, 0, 180), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
-		task.wait(0.1)
+		MainFrame:TweenSize(UDim2.new(0, 420, 0, 180), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+		task.wait(0.15)
 		ContentFrame.Visible = true
-		MinimizeButton.Text = "-"
+		MinimizeButton.Text = "—"
+		MinimizeButton.TextColor3 = BasicBialy
 	end
 end)
 
--- ŁADOWANIE LOGO
+-- ŁADOWANIE LOGO (Z ładnym zaokrągleniem w ramce)
+local LogoFrame = Instance.new("Frame")
+LogoFrame.Name = "LogoFrame"
+LogoFrame.Parent = ContentFrame
+LogoFrame.BackgroundColor3 = DarkBg
+LogoFrame.Position = UDim2.new(0, 18, 0, 18)
+LogoFrame.Size = UDim2.new(0, 76, 0, 76)
+
+local LogoCorner = Instance.new("UICorner")
+LogoCorner.CornerRadius = UDim.new(0, 10)
+LogoCorner.Parent = LogoFrame
+
+local LogoStroke = Instance.new("UIStroke")
+LogoStroke.Parent = LogoFrame
+LogoStroke.Color = Color3.fromRGB(45, 45, 50)
+LogoStroke.Thickness = 1
+
 local LogoImage = Instance.new("ImageLabel")
 LogoImage.Name = "LogoImage"
-LogoImage.Parent = ContentFrame
+LogoImage.Parent = LogoFrame
 LogoImage.BackgroundTransparency = 1
-LogoImage.Position = UDim2.new(0, 15, 0, 15) 
-LogoImage.Size = UDim2.new(0, 75, 0, 75) 
+LogoImage.Position = UDim2.new(0, 2, 0, 2)
+LogoImage.Size = UDim2.new(1, -4, 1, -4)
+LogoImage.ClipsDescendants = true
+
+local ImageCorner = Instance.new("UICorner")
+ImageCorner.CornerRadius = UDim.new(0, 8)
+ImageCorner.Parent = LogoImage
+
 pcall(function()
 	LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
 end)
 
--- Napis opcji 
-local ToggleLabel = Instance.new("TextLabel")
+-- Profesjonalna, długa nazwa opcji
 ToggleLabel.Name = "ToggleLabel"
 ToggleLabel.Parent = ContentFrame
 ToggleLabel.BackgroundTransparency = 1
-ToggleLabel.Position = UDim2.new(0, 105, 0, 20)
-ToggleLabel.Size = UDim2.new(0, 160, 0, 30)
-ToggleLabel.Font = Enum.Font.GothamMedium
+ToggleLabel.Position = UDim2.new(0, 112, 0, 40)
+ToggleLabel.Size = UDim2.new(0, 220, 0, 30)
+ToggleLabel.Font = Enum.Font.GothamBold
 ToggleLabel.Text = "Earn Money Automatic"
 ToggleLabel.TextColor3 = BasicBialy
 ToggleLabel.TextSize = 15
 ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Suwak 
+-- Futurystyczny Suwak
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ContentFrame
-ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ToggleButton.BorderSizePixel = 0
-ToggleButton.Position = UDim2.new(0, 265, 0, 22)
-ToggleButton.Size = UDim2.new(0, 55, 0, 24)
+ToggleButton.BackgroundColor3 = ButtonOff
+ToggleButton.Position = UDim2.new(0, 345, 0, 43)
+ToggleButton.Size = UDim2.new(0, 56, 0, 24)
 ToggleButton.Text = ""
+
+ButtonCorner.CornerRadius = UDim.new(1, 0)
+ButtonCorner.Parent = ToggleButton
+
+local ButtonStroke = Instance.new("UIStroke")
+ButtonStroke.Parent = ToggleButton
+ButtonStroke.Color = Color3.fromRGB(60, 60, 65)
+ButtonStroke.Thickness = 1
 
 ToggleIndicator.Name = "ToggleIndicator"
 ToggleIndicator.Parent = ToggleButton
-ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50) 
+ToggleIndicator.BackgroundColor3 = Color3.fromRGB(180, 180, 185)
 ToggleIndicator.Position = UDim2.new(0, 3, 0, 2)
 ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
 
--- Podpis w lewym dolnym rogu
+IndicatorCorner.CornerRadius = UDim.new(1, 0)
+IndicatorCorner.Parent = ToggleIndicator
+
+-- Podpis w lewym dolnym rogu (Z efektem cienia)
 CreditLabel.Name = "CreditLabel"
 CreditLabel.Parent = ContentFrame
 CreditLabel.BackgroundTransparency = 1
-CreditLabel.Position = UDim2.new(0, 15, 1, -25) 
+CreditLabel.Position = UDim2.new(0, 18, 1, -24)
 CreditLabel.Size = UDim2.new(0, 200, 0, 20)
-CreditLabel.Font = Enum.Font.GothamMedium
+CreditLabel.Font = Enum.Font.FredokaOne
 CreditLabel.Text = "made by: szarorandi/AI"
 CreditLabel.TextColor3 = ZlotoZolty
 CreditLabel.TextSize = 12
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
+CreditLabel.ZIndex = 2
+
+CreditShadow.Name = "CreditShadow"
+CreditShadow.Parent = ContentFrame
+CreditShadow.BackgroundTransparency = 1
+CreditShadow.Position = UDim2.new(0, 19, 1, -23)
+CreditShadow.Size = UDim2.new(0, 200, 0, 20)
+CreditShadow.Font = Enum.Font.FredokaOne
+CreditShadow.Text = "made by: szarorandi/AI"
+CreditShadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+CreditShadow.TextSize = 12
+CreditShadow.TextXAlignment = Enum.TextXAlignment.Left
+CreditShadow.ZIndex = 1
 
 --- SKRÓT KLAWISZOWY (LEWY CTRL) ---
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -157,44 +254,24 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
---- NAJSILNIEJSZY SYSTEM OBIJANIA REKURENCYJNEGO (REMOTE EVENTS) ---
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Zaawansowane animacje suwaka (Smooth Transitions)
 local _G = _G or {}
 _G.AutoEarnActive = false
 
-local function remoteEventBypassClick()
-	while _G.AutoEarnActive do
-		pcall(function()
-			-- Skanowanie całej pamięci gry w poszukiwaniu sieciowych funkcji uderzeń/zarabiania
-			for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-				if _G.AutoEarnActive == false then break end
-				
-				if remote:IsA("RemoteEvent") then
-					local name = remote.Name:lower()
-					-- Wykrywanie eventu powiązanego z klikaniem, botami, ekonomią lub minigrami
-					if name:find("click") or name:find("hit") or name:find("earn") or name:find("money") or name:find("drill") or name:find("bot") or name:find("tap") then
-						-- Wywołanie zdarzenia sieciowego bezpośrednio do serwera gry
-						remote:FireServer()
-						remote:FireServer(1)
-						remote:FireServer(true)
-					end
-				end
-			end
-		end)
-		task.wait(0.02) -- Ekstremalne tempo (50 wysłanych pakietów na sekundę)
-	end
-end
-
--- Obsługa suwaka
 ToggleButton.MouseButton1Click:Connect(function()
 	_G.AutoEarnActive = not _G.AutoEarnActive
 	
 	if _G.AutoEarnActive then
-		ToggleIndicator:TweenPosition(UDim2.new(0, 32, 0, 2), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
-		ToggleIndicator.BackgroundColor3 = ZlotoZolty
-		task.spawn(remoteEventBypassClick)
+		-- Animacja aktywacji (Złoty styl premium)
+		TweenService:Create(ToggleIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 33, 0, 2)}):Play()
+		TweenService:Create(ToggleIndicator, TweenInfo.new(0.25), {BackgroundColor3 = BasicBialy}):Play()
+		TweenService:Create(ToggleButton, TweenInfo.new(0.25), {BackgroundColor3 = ZlotoZolty}):Play()
+		TweenService:Create(ButtonStroke, TweenInfo.new(0.25), {Color = JasneZloto}):Play()
 	else
-		ToggleIndicator:TweenPosition(UDim2.new(0, 3, 0, 2), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
-		ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+		-- Animacja dezaktywacji (Klasyczny ciemny styl)
+		TweenService:Create(ToggleIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0, 3, 0, 2)}):Play()
+		TweenService:Create(ToggleIndicator, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(180, 180, 185)}):Play()
+		TweenService:Create(ToggleButton, TweenInfo.new(0.25), {BackgroundColor3 = ButtonOff}):Play()
+		TweenService:Create(ButtonStroke, TweenInfo.new(0.25), {Color = Color3.fromRGB(60, 60, 65)}):Play()
 	end
 end)
