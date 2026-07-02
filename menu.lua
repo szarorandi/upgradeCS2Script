@@ -1,4 +1,4 @@
--- Tworzenie prostego, stabilnego interfejsu (Wersja Ultra-Light z pełnym ukrywaniem)
+-- Tworzenie stabilnego interfejsu (Wersja z pełnym ukrywaniem i wsparciem dla scen 3D Viewport)
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local FrameCorner = Instance.new("UICorner")
@@ -95,7 +95,7 @@ CloseButton.MouseButton1Click:Connect(function()
 	ScreenGui:Destroy()
 end)
 
--- Przycisk Minimalizacji (-) -> TERAZ CAŁKOWICIE UKRYWA OKNO
+-- Przycisk Minimalizacji (-) -> Całkowicie ukrywa okno
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Parent = TitleBar
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
@@ -110,7 +110,7 @@ MinimizeCorner.CornerRadius = UDim.new(0, 5)
 MinimizeCorner.Parent = MinimizeButton
 
 MinimizeButton.MouseButton1Click:Connect(function()
-	MainFrame.Visible = false -- Całkowite ukrycie okna po kliknięciu minusa
+	MainFrame.Visible = false 
 end)
 
 -- Zawartość okna
@@ -198,23 +198,48 @@ CreditLabel.TextColor3 = ZlotoZolty
 CreditLabel.TextSize = 11
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
 
---- 🎯 PĘTLA AUTOCLICKERA ---
-local function simpleClickLoop()
+--- 🎯 SPRECYZOWANY SYSTEM KLIKANIA W TRÓJWYMIAROWE MODELE (VIEWPORT BYPASS) ---
+local VirtualUser = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function viewportClickLoop()
 	while _G.AutoEarnActive do
-		local PlayerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
 		if PlayerGui then
+			-- Przeszukujemy całe UI gry, aby namierzyć okno 3D minigry (ViewportFrame)
 			for _, v in pairs(PlayerGui:GetDescendants()) do
 				if not _G.AutoEarnActive then break end
-				if (v:IsA("TextButton") or v:IsA("ImageButton")) and not v:IsDescendantOf(MainFrame) then
-					if v.Visible and v.AbsoluteSize.X > 5 and v.AbsolutePosition.Y > 50 then
-						pcall(function()
-							v:Activate()
-						end)
+				
+				-- Skanujemy tylko okno symulacji 3D bicia botów
+				if v:IsA("ViewportFrame") and v.Visible then
+					-- Szukamy modeli 3D botów stojących wewnątrz tej wirtualnej kamery
+					for _, model in pairs(v:GetDescendants()) do
+						if model:IsA("Humanoid") and model.Parent and model.Parent:IsA("Model") then
+							local rootPart = model.Parent:FindFirstChild("HumanoidRootPart") or model.Parent:FindFirstChild("Head")
+							local currentCamera = v.CurrentCamera
+							
+							if rootPart and currentCamera then
+								pcall(function()
+									-- MATEMATYCZNA KONWERSJA: Zamieniamy pozycję bota 3D na piksele na Twoim ekranie 2D
+									local vector, onScreen = currentCamera:WorldToViewportPoint(rootPart.Position)
+									if onScreen then
+										-- Wyliczamy idealne przesunięcie pikseli względem okna minigry
+										local finalX = v.AbsolutePosition.X + vector.X
+										local finalY = v.AbsolutePosition.Y + vector.Y + 46 -- Przesunięcie na środek brzucha bota
+										
+										-- Sprzętowe uderzenie w wyliczone piksele 3D (Omija całkowicie zabezpieczenia)
+										VirtualUser:Button1Down(Vector2.new(finalX, finalY))
+										VirtualUser:Button1Up(Vector2.new(finalX, finalY))
+									end
+								end)
+							end
+						end
 					end
 				end
 			end
 		end
-		task.wait(0.01) 
+		task.wait(0.02) -- Ekstremalne tempo uderzeń bota
 	end
 end
 
@@ -224,7 +249,7 @@ local function toggleBotState()
 	if _G.AutoEarnActive then
 		ToggleIndicator.Position = UDim2.new(0, 31, 0, 2)
 		ToggleButton.BackgroundColor3 = ZlotoZolty
-		task.spawn(simpleClickLoop)
+		task.spawn(viewportClickLoop)
 	else
 		ToggleIndicator.Position = UDim2.new(0, 3, 0, 2)
 		ToggleButton.BackgroundColor3 = ButtonOff
