@@ -1,4 +1,4 @@
--- Tworzenie Interfejsu Graficznego premium (Wersja z wyborem klawisza)
+-- Tworzenie Interfejsu Graficznego premium (Wersja Bezpieczna)
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local FrameCorner = Instance.new("UICorner")
@@ -17,7 +17,7 @@ local MinimizeCorner = Instance.new("UICorner")
 
 local ContentFrame = Instance.new("Frame")
 local ToggleLabel = Instance.new("TextLabel")
-local KeyBindButton = Instance.new("TextButton") -- Nowy przycisk do zmiany klawisza
+local KeyBindButton = Instance.new("TextButton")
 local ToggleButton = Instance.new("TextButton")
 local ButtonCorner = Instance.new("UICorner")
 local ToggleIndicator = Instance.new("Frame")
@@ -27,7 +27,7 @@ local CreditLabel = Instance.new("TextLabel")
 local CreditShadow = Instance.new("TextLabel")
 local UserInputService = game:GetService("UserInputService")
 
--- Zmienna przechowująca aktualny klawisz (Domyślnie H)
+-- Zmienne konfiguracyjne
 local CurrentBind = Enum.KeyCode.H
 local ListeningForBind = false
 
@@ -58,7 +58,7 @@ MainFrame.ClipsDescendants = true
 FrameCorner.CornerRadius = UDim.new(0, 10)
 FrameCorner.Parent = MainFrame
 
--- Efekt neonowego, złotego obramowania
+-- Efekt obramowania
 UIStroke.Parent = MainFrame
 UIStroke.Color = Color3.fromRGB(255, 255, 255)
 UIStroke.Thickness = 2
@@ -71,7 +71,7 @@ StrokeGradient.Color = ColorSequence.new({
 })
 StrokeGradient.Parent = UIStroke
 
--- Elegancki pasek tytułowy
+-- Pasek tytułowy
 TitleBar.Name = "TitleBar"
 TitleBar.Parent = MainFrame
 TitleBar.BackgroundColor3 = TitleBg
@@ -184,9 +184,8 @@ local ImageCorner = Instance.new("UICorner")
 ImageCorner.CornerRadius = UDim.new(0, 6)
 ImageCorner.Parent = LogoImage
 
-pcall(function()
-	LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
-end)
+-- Bezpieczne, natywne ładowanie obrazka przez system miniatur Robloxa
+LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
 
 -- Nazwa opcji
 ToggleLabel.Name = "ToggleLabel"
@@ -200,7 +199,7 @@ ToggleLabel.TextColor3 = BasicBialy
 ToggleLabel.TextSize = 14
 ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Przycisk do bindowania klawiszy (Ustawiony pod napisem)
+-- Przycisk binda
 KeyBindButton.Name = "KeyBindButton"
 KeyBindButton.Parent = ContentFrame
 KeyBindButton.BackgroundTransparency = 1
@@ -262,7 +261,7 @@ CreditShadow.TextSize = 11
 CreditShadow.TextXAlignment = Enum.TextXAlignment.Left
 CreditShadow.ZIndex = 1
 
---- LOGIKA AUTOMATYCZNEGO KLIKANIA W LUDZIKI ---
+--- 🎯 UNIWERSALNA LOGIKA KLIKANIA W ELEMENTY OKNA "EARN MONEY" ---
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local VirtualUser = game:GetService("VirtualUser")
@@ -270,24 +269,24 @@ local VirtualUser = game:GetService("VirtualUser")
 local _G = _G or {}
 _G.AutoEarnActive = false
 
-local function smartDrillClick()
+local function startClickingLoop()
 	while _G.AutoEarnActive do
 		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
 		if PlayerGui then
 			for _, obj in pairs(PlayerGui:GetDescendants()) do
 				if _G.AutoEarnActive == false then break end
 				
+				-- Automatyczne wykrywanie okna gry po nazwach i słowach kluczowych
 				if obj:IsA("Frame") and (obj.Name:lower():find("drill") or obj.Name:lower():find("earn") or obj.Name:lower():find("money")) then
 					for _, child in pairs(obj:GetDescendants()) do
 						if child:IsA("ImageLabel") or child:IsA("ImageButton") or child:IsA("TextButton") then
 							if child.Visible and child.AbsoluteSize.X > 10 then
 								pcall(function()
+									-- Kliknięcie wewnętrzne (Zdarzenie UI)
 									if child:IsA("ImageButton") or child:IsA("TextButton") then
 										child:Activate()
 									end
-									
+									-- Kliknięcie fizyczne (Symulacja pozycji myszy)
 									local x = child.AbsolutePosition.X + (child.AbsoluteSize.X / 2)
 									local y = child.AbsolutePosition.Y + (child.AbsoluteSize.Y / 2)
-									VirtualUser:Button1Down(Vector2.new(x, y))
-									VirtualUser:Button1Up(Vector2.new(x, y))
-end)endendendendendendtask.wait(0.05)endend-- Funkcja przełączająca stan botalocal function toggleBotState()_G.AutoEarnActive = not _G.AutoEarnActiveif _G.AutoEarnActive thenToggleIndicator.Position = UDim2.new(0, 31, 0, 2)ToggleIndicator.BackgroundColor3 = BasicBialyToggleButton.BackgroundColor3 = ZlotoZoltyButtonStroke.Color = JasneZlototask.spawn(smartDrillClick)elseToggleIndicator.Position = UDim2.new(0, 3, 0, 2)ToggleIndicator.BackgroundColor3 = Color3.fromRGB(180, 180, 185)ToggleButton.BackgroundColor3 = ButtonOffButtonStroke.Color = Color3.fromRGB(60, 60, 65)endend-- Reakcja na kliknięcie w przycisk zmiany klawiszaKeyBindButton.MouseButton1Click:Connect(function()ListeningForBind = trueKeyBindButton.Text = "[ Kliknij klawisz... ]"KeyBindButton.TextColor3 = Color3.fromRGB(255, 100, 100) -- Zmienia kolor na czerwony podczas czekaniaend)--- OBSŁUGA KLAWIATURY (STEROWANIE I BINDY) ---UserInputService.InputBegan:Connect(function(input, gameProcessed)-- Zmiana binda (Uruchamia się, jeśli kliknąłeś w guzik)if ListeningForBind and input.UserInputType == Enum.UserInputType.Keyboard thenCurrentBind = input.KeyCodeListeningForBind = falseKeyBindButton.Text = "[ Klawisz: " .. input.KeyCode.Name .. " ]"KeyBindButton.TextColor3 = ZlotoZoltyreturnend-- Standardowe skróty klawiszoweif not gameProcessed then-- LEWY CTRL: Pokazuje / Ukrywa całe menuif input.KeyCode == Enum.KeyCode.LeftControl thenMainFrame.Visible = not MainFrame.Visible-- DYNAMICZNY ZMIENNY KLAWISZ (H, U lub każdy inny wybrany przez Ciebie)elseif input.KeyCode == CurrentBind thentoggleBotState()endendend)
+VirtualUser:Button1Down(Vector2.new(x, y))VirtualUser:Button1Up(Vector2.new(x, y))end)endendendendendendtask.wait(0.05)endend-- Funkcja przełączająca stan botalocal function toggleBotState()_G.AutoEarnActive = not _G.AutoEarnActiveif _G.AutoEarnActive thenToggleIndicator.Position = UDim2.new(0, 31, 0, 2)ToggleIndicator.BackgroundColor3 = BasicBialyToggleButton.BackgroundColor3 = ZlotoZoltyButtonStroke.Color = JasneZlototask.spawn(startClickingLoop)elseToggleIndicator.Position = UDim2.new(0, 3, 0, 2)ToggleIndicator.BackgroundColor3 = Color3.fromRGB(180, 180, 185)ToggleButton.BackgroundColor3 = ButtonOffButtonStroke.Color = Color3.fromRGB(60, 60, 65)endend-- Reakcja na kliknięcie w przycisk zmiany klawiszaKeyBindButton.MouseButton1Click:Connect(function()ListeningForBind = trueKeyBindButton.Text = "[ Kliknij klawisz... ]"KeyBindButton.TextColor3 = Color3.fromRGB(255, 100, 100)end)-- Reakcja na kliknięcie w suwakToggleButton.MouseButton1Click:Connect(toggleBotState)--- OBSŁUGA KLAWIATURY ---UserInputService.InputBegan:Connect(function(input, gameProcessed)if ListeningForBind and input.UserInputType == Enum.UserInputType.Keyboard thenCurrentBind = input.KeyCodeListeningForBind = falseKeyBindButton.Text = "[ Klawisz: " .. input.KeyCode.Name .. " ]"KeyBindButton.TextColor3 = ZlotoZoltyreturnendif not gameProcessed thenif input.KeyCode == Enum.KeyCode.LeftControl thenMainFrame.Visible = not MainFrame.Visibleelseif input.KeyCode == CurrentBind thentoggleBotState()endendend)
