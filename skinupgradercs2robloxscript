@@ -1,4 +1,4 @@
--- Tworzenie Interfejsu Graficznego premium (Kompaktowa wersja)
+-- Tworzenie Interfejsu Graficznego premium (Wersja Ultra-Stabilna)
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local FrameCorner = Instance.new("UICorner")
@@ -25,7 +25,6 @@ local IndicatorCorner = Instance.new("UICorner")
 local CreditLabel = Instance.new("TextLabel")
 local CreditShadow = Instance.new("TextLabel")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 
 -- Paleta kolorów premium
 local DarkBg = Color3.fromRGB(15, 15, 15)
@@ -134,18 +133,17 @@ ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 34)
 ContentFrame.Size = UDim2.new(1, 0, 1, -34)
 
--- Obsługa minimalizacji do małego paska
+-- Obsługa minimalizacji
 local IsMinimized = false
 MinimizeButton.MouseButton1Click:Connect(function()
 	IsMinimized = not IsMinimized
 	if IsMinimized then
 		ContentFrame.Visible = false 
-		MainFrame:TweenSize(UDim2.new(0, 320, 0, 34), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		MainFrame.Size = UDim2.new(0, 320, 0, 34)
 		MinimizeButton.Text = "+"
 		MinimizeButton.TextColor3 = ZlotoZolty
 	else
-		MainFrame:TweenSize(UDim2.new(0, 320, 0, 140), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
-		task.wait(0.1)
+		MainFrame.Size = UDim2.new(0, 320, 0, 140)
 		ContentFrame.Visible = true
 		MinimizeButton.Text = "—"
 		MinimizeButton.TextColor3 = BasicBialy
@@ -185,7 +183,7 @@ pcall(function()
 	LogoImage.Image = "rbxthumb://type=Asset&id=81267336403105&w=150&h=150"
 end)
 
--- Napis opcji Auto Earn Money
+-- Nazwa opcji
 ToggleLabel.Name = "ToggleLabel"
 ToggleLabel.Parent = ContentFrame
 ToggleLabel.BackgroundTransparency = 1
@@ -222,7 +220,7 @@ ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
 IndicatorCorner.CornerRadius = UDim.new(1, 0)
 IndicatorCorner.Parent = ToggleIndicator
 
--- Podpis w lewym dolnym rogu
+-- Podpis
 CreditLabel.Name = "CreditLabel"
 CreditLabel.Parent = ContentFrame
 CreditLabel.BackgroundTransparency = 1
@@ -254,7 +252,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
---- FUNKCJA ODPOWIEDZIALNA ZA AUTOMATYCZNE KLIKANIE W LUDZIKI ---
+--- LOGIKA AUTOMATYCZNEGO KLIKANIA W LUDZIKI ---
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local VirtualUser = game:GetService("VirtualUser")
@@ -293,4 +291,11 @@ local function smartDrillClick()
 	end
 end
 
--- Obsługa suwaka i uruchamianie pętli klikania
+-- Błyskawiczna, bezbłędna obsługa kliknięcia suwaka
+ToggleButton.MouseButton1Click:Connect(function()
+	_G.AutoEarnActive = not _G.AutoEarnActive
+	
+	if _G.AutoEarnActive then
+		-- Natychmiastowe włączenie (Głęboki złoty styl)
+		ToggleIndicator.Position = UDim2.new(0, 31, 0, 2)
+		ToggleIndicator.BackgroundColor3 = BasicBialy
