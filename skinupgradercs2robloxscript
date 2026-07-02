@@ -1,0 +1,151 @@
+-- Tworzenie Interfejsu Graficznego (GUI)
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local CloseButton = Instance.new("TextButton")
+local ContentFrame = Instance.new("Frame")
+local ToggleLabel = Instance.new("TextLabel")
+local ToggleButton = Instance.new("TextButton")
+local ToggleIndicator = Instance.new("Frame")
+local CreditLabel = Instance.new("TextLabel")
+local UIStroke = Instance.new("UIStroke")
+
+-- Kolory zgodne z Twoim zamówieniem
+local ZlotoZolty = Color3.fromRGB(255, 196, 0)
+local BasicBialy = Color3.fromRGB(240, 240, 240)
+
+-- Konfiguracja bazy GUI
+ScreenGui.Name = "AutoEarnMoneyGUI"
+ScreenGui.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- Okno główne (Można je przesuwać myszką)
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 320, 0, 180)
+MainFrame.Active = true
+MainFrame.Draggable = true 
+
+UIStroke.Parent = MainFrame
+UIStroke.Color = ZlotoZolty
+UIStroke.Thickness = 2
+
+-- Górny pasek tytułowy (Złoto-żółty)
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+TitleLabel.BorderSizePixel = 0
+TitleLabel.Size = UDim2.new(1, 0, 0, 30)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "  AUTO EARN MONEY // SYSTEM"
+TitleLabel.TextColor3 = ZlotoZolty
+TitleLabel.TextSize = 14
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Przycisk Zamknij (X)
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = MainFrame
+CloseButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+CloseButton.BorderSizePixel = 0
+CloseButton.Position = UDim2.new(1, -30, 0, 0)
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "X"
+CloseButton.TextColor3 = BasicBialy
+CloseButton.TextSize = 14
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+-- Zawartość okna
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Position = UDim2.new(0, 0, 0, 30)
+ContentFrame.Size = UDim2.new(1, 0, 1, -30)
+
+-- Napis opcji (Zwykły biały / basic)
+ToggleLabel.Name = "ToggleLabel"
+ToggleLabel.Parent = ContentFrame
+ToggleLabel.BackgroundTransparency = 1
+ToggleLabel.Position = UDim2.new(0, 20, 0, 40)
+ToggleLabel.Size = UDim2.new(0, 180, 0, 30)
+ToggleLabel.Font = Enum.Font.GothamMedium
+ToggleLabel.Text = "Earn Money Automatic"
+ToggleLabel.TextColor3 = BasicBialy
+ToggleLabel.TextSize = 16
+ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Suwak / Przełącznik (Włącz/Wyłącz)
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = ContentFrame
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Position = UDim2.new(0, 220, 0, 42)
+ToggleButton.Size = UDim2.new(0, 60, 0, 26)
+ToggleButton.Text = ""
+
+ToggleIndicator.Name = "ToggleIndicator"
+ToggleIndicator.Parent = ToggleButton
+ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50) 
+ToggleIndicator.Position = UDim2.new(0, 3, 0, 3)
+ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
+
+-- Podpis w lewym dolnym rogu (Złoto-żółty)
+CreditLabel.Name = "CreditLabel"
+CreditLabel.Parent = ContentFrame
+CreditLabel.BackgroundTransparency = 1
+CreditLabel.Position = UDim2.new(0, 10, 1, -25)
+CreditLabel.Size = UDim2.new(0, 200, 0, 20)
+CreditLabel.Font = Enum.Font.GothamMedium
+CreditLabel.Text = "made by: szarorandi/AI"
+CreditLabel.TextColor3 = ZlotoZolty
+CreditLabel.TextSize = 12
+CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+--- LOGIKA AUTOMATYCZNEGO KLIKANIA BOTÓW ---
+
+local _G = _G or {}
+_G.AutoEarnActive = false
+
+local function clickBots()
+	while _G.AutoEarnActive do
+		for _, v in pairs(workspace:GetDescendants()) do
+			if _G.AutoEarnActive == false then break end
+			
+			if v:IsA("Humanoid") and v.Parent and v.Parent.Name ~= game:GetService("Players").LocalPlayer.Name then
+				local part = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Head")
+				if part then
+					local clickDetector = v.Parent:FindFirstChildOfClass("ClickDetector")
+					if clickDetector then
+						fireclickdetector(clickDetector)
+					else
+						local tool = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Tool")
+						if tool then
+							tool:Activate()
+						end
+					end
+				end
+			end
+		end
+		task.wait(0.1) 
+	end
+end
+
+-- Obsługa suwaka (Włącznik / Wyłącznik)
+ToggleButton.MouseButton1Click:Connect(function()
+	_G.AutoEarnActive = not _G.AutoEarnActive
+	
+	if _G.AutoEarnActive then
+		ToggleIndicator:TweenPosition(UDim2.new(0, 37, 0, 3), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		ToggleIndicator.BackgroundColor3 = ZlotoZolty
+		task.spawn(clickBots)
+	else
+		ToggleIndicator:TweenPosition(UDim2.new(0, 3, 0, 3), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+	end
+end)
