@@ -3,14 +3,25 @@ local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local TitleLabel = Instance.new("TextLabel")
 local CloseButton = Instance.new("TextButton")
+local MinimizeButton = Instance.new("TextButton")
 local ContentFrame = Instance.new("Frame")
 local ToggleLabel = Instance.new("TextLabel")
 local ToggleButton = Instance.new("TextButton")
 local ToggleIndicator = Instance.new("Frame")
 local CreditLabel = Instance.new("TextLabel")
 local UIStroke = Instance.new("UIStroke")
+local UserInputService = game:GetService("UserInputService")
 
--- Kolory zgodne z Twoim zamówieniem
+-- LEWE LOGO (Gdy obrazek przestanie być biały, wpisz jego ID poniżej)
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Name = "LogoImage"
+LogoImage.Parent = MainFrame
+LogoImage.BackgroundTransparency = 1
+LogoImage.Position = UDim2.new(0, 15, 0, 45) -- Pozycja dopasowana do okna
+LogoImage.Size = UDim2.new(0, 75, 0, 75) -- Rozmiar dopasowany do kwadratu
+LogoImage.Image = "rbxassetid://TUTAJ_WPISZ_SWOJE_ID" -- Zastąp to swoimi cyframi z adresu URL
+
+-- Kolory
 local ZlotoZolty = Color3.fromRGB(255, 196, 0)
 local BasicBialy = Color3.fromRGB(240, 240, 240)
 
@@ -19,21 +30,22 @@ ScreenGui.Name = "AutoEarnMoneyGUI"
 ScreenGui.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
--- Okno główne (Można je przesuwać myszką)
+-- Okno główne
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 320, 0, 180)
+MainFrame.Size = UDim2.new(0, 340, 0, 180) -- Lekko poszerzone dla lepszego wyglądu
 MainFrame.Active = true
 MainFrame.Draggable = true 
+MainFrame.ClipsDescendants = true 
 
 UIStroke.Parent = MainFrame
 UIStroke.Color = ZlotoZolty
 UIStroke.Thickness = 2
 
--- Górny pasek tytułowy (Złoto-żółty)
+-- Górny pasek tytułowy
 TitleLabel.Name = "TitleLabel"
 TitleLabel.Parent = MainFrame
 TitleLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
@@ -61,6 +73,30 @@ CloseButton.MouseButton1Click:Connect(function()
 	ScreenGui:Destroy()
 end)
 
+-- Przycisk Minimalizacji (-)
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = MainFrame
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Position = UDim2.new(1, -60, 0, 0)
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = BasicBialy
+MinimizeButton.TextSize = 16
+
+local IsMinimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+	IsMinimized = not IsMinimized
+	if IsMinimized then
+		MainFrame:TweenSize(UDim2.new(0, 340, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+		MinimizeButton.Text = "+"
+	else
+		MainFrame:TweenSize(UDim2.new(0, 340, 0, 180), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+		MinimizeButton.Text = "-"
+	end
+end)
+
 -- Zawartość okna
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
@@ -68,38 +104,38 @@ ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 30)
 ContentFrame.Size = UDim2.new(1, 0, 1, -30)
 
--- Napis opcji (Zwykły biały / basic)
+-- Napis opcji (Przesunięty w prawo, by zrobić miejsce na logo)
 ToggleLabel.Name = "ToggleLabel"
 ToggleLabel.Parent = ContentFrame
 ToggleLabel.BackgroundTransparency = 1
-ToggleLabel.Position = UDim2.new(0, 20, 0, 40)
-ToggleLabel.Size = UDim2.new(0, 180, 0, 30)
+ToggleLabel.Position = UDim2.new(0, 105, 0, 35)
+ToggleLabel.Size = UDim2.new(0, 160, 0, 30)
 ToggleLabel.Font = Enum.Font.GothamMedium
 ToggleLabel.Text = "Earn Money Automatic"
 ToggleLabel.TextColor3 = BasicBialy
-ToggleLabel.TextSize = 16
+ToggleLabel.TextSize = 15
 ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Suwak / Przełącznik (Włącz/Wyłącz)
+-- Suwak (Przesunięty w prawo)
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Parent = ContentFrame
 ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 ToggleButton.BorderSizePixel = 0
-ToggleButton.Position = UDim2.new(0, 220, 0, 42)
-ToggleButton.Size = UDim2.new(0, 60, 0, 26)
+ToggleButton.Position = UDim2.new(0, 265, 0, 37)
+ToggleButton.Size = UDim2.new(0, 55, 0, 24)
 ToggleButton.Text = ""
 
 ToggleIndicator.Name = "ToggleIndicator"
 ToggleIndicator.Parent = ToggleButton
 ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50) 
-ToggleIndicator.Position = UDim2.new(0, 3, 0, 3)
+ToggleIndicator.Position = UDim2.new(0, 3, 0, 2)
 ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
 
 -- Podpis w lewym dolnym rogu (Złoto-żółty)
 CreditLabel.Name = "CreditLabel"
 CreditLabel.Parent = ContentFrame
 CreditLabel.BackgroundTransparency = 1
-CreditLabel.Position = UDim2.new(0, 10, 1, -25)
+CreditLabel.Position = UDim2.new(0, 15, 1, -25) 
 CreditLabel.Size = UDim2.new(0, 200, 0, 20)
 CreditLabel.Font = Enum.Font.GothamMedium
 CreditLabel.Text = "made by: szarorandi/AI"
@@ -107,45 +143,56 @@ CreditLabel.TextColor3 = ZlotoZolty
 CreditLabel.TextSize = 12
 CreditLabel.TextXAlignment = Enum.TextXAlignment.Left
 
---- LOGIKA AUTOMATYCZNEGO KLIKANIA BOTÓW ---
+--- SKRÓT KLAWISZOWY (LEWY CTRL) DO UKRYWANIA MENU ---
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if not gameProcessed and input.KeyCode == Enum.KeyCode.LeftControl then
+		MainFrame.Visible = not MainFrame.Visible
+	end
+end)
+
+--- BEZPIECZNE AUTOMATYCZNE KLIKANIE ---
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
 local _G = _G or {}
 _G.AutoEarnActive = false
 
-local function clickBots()
+local function forceClick()
 	while _G.AutoEarnActive do
-		for _, v in pairs(workspace:GetDescendants()) do
-			if _G.AutoEarnActive == false then break end
-			
-			if v:IsA("Humanoid") and v.Parent and v.Parent.Name ~= game:GetService("Players").LocalPlayer.Name then
-				local part = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Head")
-				if part then
-					local clickDetector = v.Parent:FindFirstChildOfClass("ClickDetector")
-					if clickDetector then
-						fireclickdetector(clickDetector)
-					else
-						local tool = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Tool")
-						if tool then
-							tool:Activate()
-						end
+		local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+		if PlayerGui then
+			for _, guiObject in pairs(PlayerGui:GetDescendants()) do
+				if _G.AutoEarnActive == false then break end
+				
+				if guiObject:IsA("ImageButton") or guiObject:IsA("TextButton") then
+					if guiObject.Visible and (guiObject.Parent.Name:lower():find("bot") or guiObject.Name:lower():find("bot") or guiObject.Parent.Name:lower():find("drill")) then
+						pcall(function()
+							guiObject:Activate()
+							for _, connection in pairs(getconnections(guiObject.MouseButton1Click)) do
+								connection:Fire()
+							end
+							for _, connection in pairs(getconnections(guiObject.MouseButton1Down)) do
+								connection:Fire()
+							end
+						end)
 					end
 				end
 			end
 		end
-		task.wait(0.1) 
+		task.wait(0.05) 
 	end
 end
 
--- Obsługa suwaka (Włącznik / Wyłącznik)
+-- Obsługa suwaka
 ToggleButton.MouseButton1Click:Connect(function()
 	_G.AutoEarnActive = not _G.AutoEarnActive
 	
 	if _G.AutoEarnActive then
-		ToggleIndicator:TweenPosition(UDim2.new(0, 37, 0, 3), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		ToggleIndicator:TweenPosition(UDim2.new(0, 32, 0, 2), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
 		ToggleIndicator.BackgroundColor3 = ZlotoZolty
-		task.spawn(clickBots)
+		task.spawn(forceClick)
 	else
-		ToggleIndicator:TweenPosition(UDim2.new(0, 3, 0, 3), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		ToggleIndicator:TweenPosition(UDim2.new(0, 3, 0, 2), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
 		ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
 	end
 end)
